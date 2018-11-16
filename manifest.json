@@ -1,0 +1,21 @@
+{
+  "name": "网络学堂更新推送",
+  "version": "0.1",
+  "author": "Yingge Wan",
+  "icons": {
+    "24": "favicon.png",
+    "48": "favicon.png"
+  },
+  "permissions": ["notifications", "tabs", "<all_urls>"],
+  "browser_action": {
+    "default_icon": {
+      "20": "favicon.png",
+      "40": "favicon.png"
+    },
+    "default_title": "进入网络学堂"
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  }
+}
