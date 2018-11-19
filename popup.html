@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  </head>
+  <body>    
+    <section class="hero is-fullheight is-medium is-primary is-bold">
+      <div class="hero-body">
+        <div class="container">
+          <div class="columns is-centered">
+            <article class="card is-rounded">
+              <div class="card-content">
+                <div id="login-panel">
+                  <h1 id="title" class="title has-text-grey">
+                    网络学堂登录
+                  </h1>
+                  <div class="field">
+                    <div class="control has-icons-left">
+                      <input id="username" class="input" type="text" placeholder="请输入账号">
+                      <span class="icon is-medium is-left">
+                        <i class="fas fa-user"></i>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="control has-icons-left">
+                      <input id="password" class="input" type="password" placeholder="请输入密码">
+                      <span class="icon is-medium is-left">
+                        <i class="fas fa-lock"></i>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="control">
+                    <button id="login" class="button is-primary is-medium is-fullwidth">
+                      登录
+                    </button>
+                  </div>
+                </div>
+                <div id="logout-panel" style="display:none">
+                  <span class="icon is-large" style="float:left">
+                    <i class="fas fa-user" style="color:darkgray"></i>
+                  </span>
+                  <h1 id='username-online' class="title has-text-grey">
+                  </h1>
+                  <div class="control">
+                    <button id="logout" class="button is-primary is-medium is-fullwidth">
+                      注销
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/popup.js"></script>
+  </body>
+</html>
