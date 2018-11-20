@@ -48,9 +48,9 @@ updateSingleCourse = function(courseName, courseInfo) {
   localStorage.setItem(courseName, JSON.stringify(courseInfo));
   let messagePopup = "";
   let message = "";
-  messagePopup = generateMessage(messagePopup, courseInfo.numHomework, "未交作业", sep='\n');
-  messagePopup = generateMessage(messagePopup, courseInfo.numNotice, "未读公告", sep='\n');
-  messagePopup = generateMessage(messagePopup, courseInfo.numFile, "未读文件", sep='\n');
+  messagePopup = generateMessage(messagePopup, courseInfo.numHomework, "未交作业", sep='<br/>');
+  messagePopup = generateMessage(messagePopup, courseInfo.numNotice, "未读公告", sep='<br/>');
+  messagePopup = generateMessage(messagePopup, courseInfo.numFile, "未读文件", sep='<br/>');
   if (courseInfoOld !== null) {
     let newHomework = courseInfo.numHomework - courseInfoOld.numHomework;
     let newNotice = courseInfo.numNotice - courseInfoOld.numNotice;
