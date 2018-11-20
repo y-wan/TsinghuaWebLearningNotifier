@@ -1,15 +1,19 @@
 let colorOnline = '#00C853';
-let textOnline = '√';
+let badgeTextOnline = '√';
+let titleOnline = '在线';
 let colorOffline = '#DD2C00';
-let textOffline = 'X';
+let badgeTextOffline = 'X';
+let titleOffline = '离线';
 
 setBadge = function(online=true) {
   if (online) {
     browser.browserAction.setBadgeBackgroundColor({color: colorOnline});
-    browser.browserAction.setBadgeText({text: textOnline});
+    browser.browserAction.setBadgeText({text: badgeTextOnline});
+    browser.browserAction.setTitle({title: titleOnline});
   } else {
     browser.browserAction.setBadgeBackgroundColor({color: colorOffline});
-    browser.browserAction.setBadgeText({text: textOffline});
+    browser.browserAction.setBadgeText({text: badgeTextOffline});
+    browser.browserAction.setTitle({title: titleOffline});
   }
 }
 
@@ -114,27 +118,6 @@ createInfoPanel = function(courseInfoList) {
   return infoPanel;
 }
 
-getStoredCourseInfo = function() {
-  let courseInfoList = {};
-  for (let i = 0; i < localStorage.length; i++) {
-    try {
-      let courseName = localStorage.key(i);
-      let courseInfo = JSON.parse(localStorage.getItem(courseName));
-      if ('courseUrl' in courseInfo) {
-        courseInfoList[courseName] = {
-          'courseUrl': courseInfo.courseUrl,
-          'numHomework': courseInfo.numHomework,
-          'numNotice': courseInfo.numNotice,
-          'numFile': courseInfo.numFile
-        };
-      }
-    } catch(err) {
-      continue;
-    }
-  }
-  return courseInfoList;
-};
-
 toggleSpin = function(spin=true) {
   if (spin) {
     document.getElementById('login').classList.add('is-loading');
@@ -151,7 +134,7 @@ getCourseInfo = function(popup=false) {
   let xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == XMLHttpRequest.DONE) {
-      toggleSpin(false);
+      if (popup) toggleSpin(false);
       let courseInfoList = parseCoursePage(xhr.responseText);
       for (let [courseName, courseInfo] of Object.entries(courseInfoList)) {
         updateSingleCourse(courseName, courseInfo);
@@ -198,7 +181,7 @@ login = function(username, password, popup=false) {
     if (xhr.readyState == XMLHttpRequest.DONE) {
       // login failure
       if (xhr.responseText.indexOf('alert') > -1) {
-        toggleSpin(false);
+        if (popup) toggleSpin(false);
         window.alert('用户名或密码错误');
         logout(popup);
         return;
