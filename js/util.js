@@ -25,12 +25,18 @@ getCourseId = function(url) {
 };
 
 parseCoursePage = function(page) {
-  parser = new DOMParser();
-  htmlDoc = parser.parseFromString(page, "text/html");
+  let courseInfoList = {};
+  let parser = new DOMParser();
+  let htmlDoc = parser.parseFromString(page, "text/html");
+  // renew web learning 2015 session
+  let renewUrl = htmlDoc.getElementsByTagName("iframe")[0].getAttribute('src');
+  let xhr = new XMLHttpRequest();
+  xhr.open('GET', renewUrl, true);
+  xhr.send();
+  // retrieve course info list
   let courseTable = htmlDoc.getElementById("info_1");
   if (courseTable === null) return;
   let courseList = Array.from(courseTable.firstElementChild.children).slice(2);
-  let courseInfoList = {};
   courseList.forEach(item => {
     let url = item.children[0].children[1].href;
     let courseUrl = url.indexOf('/MultiLanguage') > -1 ? "http://learn.tsinghua.edu.cn" + url.slice(url.indexOf('/MultiLanguage')) : url;
@@ -48,9 +54,9 @@ updateSingleCourse = function(courseName, courseInfo) {
   localStorage.setItem(courseName, JSON.stringify(courseInfo));
   let messagePopup = "";
   let message = "";
-  messagePopup = generateMessage(messagePopup, courseInfo.numHomework, "未交作业", sep='<br/>');
-  messagePopup = generateMessage(messagePopup, courseInfo.numNotice, "未读公告", sep='<br/>');
-  messagePopup = generateMessage(messagePopup, courseInfo.numFile, "未读文件", sep='<br/>');
+  messagePopup = generateMessage(messagePopup, courseInfo.numHomework, "未交作业");
+  messagePopup = generateMessage(messagePopup, courseInfo.numNotice, "未读公告");
+  messagePopup = generateMessage(messagePopup, courseInfo.numFile, "未读文件");
   if (courseInfoOld !== null) {
     let newHomework = courseInfo.numHomework - courseInfoOld.numHomework;
     let newNotice = courseInfo.numNotice - courseInfoOld.numNotice;
