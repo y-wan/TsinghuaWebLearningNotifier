@@ -49,14 +49,18 @@ parseCoursePage = function(page) {
   return courseInfoList;
 }
 
+getPopupMessage = function(courseInfo) {
+  let message = "";
+  message = generateMessage(message, courseInfo.numHomework, "未交作业");
+  message = generateMessage(message, courseInfo.numNotice, "未读公告");
+  message = generateMessage(message, courseInfo.numFile, "未读文件");
+  return message;
+}
+
 updateSingleCourse = function(courseName, courseInfo) {
   let courseInfoOld = JSON.parse(localStorage.getItem(courseName));
   localStorage.setItem(courseName, JSON.stringify(courseInfo));
-  let messagePopup = "";
   let message = "";
-  messagePopup = generateMessage(messagePopup, courseInfo.numHomework, "未交作业");
-  messagePopup = generateMessage(messagePopup, courseInfo.numNotice, "未读公告");
-  messagePopup = generateMessage(messagePopup, courseInfo.numFile, "未读文件");
   if (courseInfoOld !== null) {
     let newHomework = courseInfo.numHomework - courseInfoOld.numHomework;
     let newNotice = courseInfo.numNotice - courseInfoOld.numNotice;
@@ -80,5 +84,145 @@ updateSingleCourse = function(courseName, courseInfo) {
       requireInteraction: false
     });
   }
-  return [messagePopup, courseInfo.courseUrl];
 }
+
+createInfoPanel = function(courseInfoList) {
+  let infoPanel = document.createElement("div");
+  infoPanel.id = "info-panel";
+  infoPanel.classList.add("box");
+  for (let [courseName, courseInfo] of Object.entries(courseInfoList)) {
+    let message = getPopupMessage(courseInfo);
+    if (message === "") continue;
+    let courseNode = document.createElement("article");
+    courseNode.classList.add("media");
+    let hyperlink = document.createElement("a");
+    hyperlink.href = courseInfo.courseUrl;
+    let content = document.createElement("div");
+    content.classList.add("content");
+    let titleNode = document.createElement("strong");
+    titleNode.appendChild(document.createTextNode(courseName));
+    content.appendChild(titleNode);
+    let messageNode = document.createElement("p");
+    let smallNode = document.createElement("small");
+    smallNode.appendChild(document.createTextNode(message));
+    messageNode.appendChild(smallNode);
+    content.appendChild(messageNode);
+    hyperlink.appendChild(content);
+    courseNode.appendChild(hyperlink);
+    infoPanel.appendChild(courseNode);
+  }
+  return infoPanel;
+}
+
+getStoredCourseInfo = function() {
+  let courseInfoList = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    try {
+      let courseName = localStorage.key(i);
+      let courseInfo = JSON.parse(localStorage.getItem(courseName));
+      if ('courseUrl' in courseInfo) {
+        courseInfoList[courseName] = {
+          'courseUrl': courseInfo.courseUrl,
+          'numHomework': courseInfo.numHomework,
+          'numNotice': courseInfo.numNotice,
+          'numFile': courseInfo.numFile
+        };
+      }
+    } catch(err) {
+      continue;
+    }
+  }
+  return courseInfoList;
+};
+
+toggleSpin = function(spin=true) {
+  if (spin) {
+    document.getElementById('login').classList.add('is-loading');
+    document.getElementById('user-icon').classList.add('fa-sync', 'fa-spin');
+    document.getElementById('user-icon').classList.remove('fa-user');
+  } else {
+    document.getElementById('login').classList.remove('is-loading');
+    document.getElementById('user-icon').classList.remove('fa-sync', 'fa-spin');
+    document.getElementById('user-icon').classList.add('fa-user');
+  }
+}
+
+getCourseInfo = function(popup=false) {
+  let xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      toggleSpin(false);
+      let courseInfoList = parseCoursePage(xhr.responseText);
+      for (let [courseName, courseInfo] of Object.entries(courseInfoList)) {
+        updateSingleCourse(courseName, courseInfo);
+      }
+      if (popup) {
+        document.getElementById('login-panel').style.display = "none";
+        document.getElementById('logout-panel').style.display = "block";
+        document.getElementById('username-online').innerText = localStorage.getItem('username');
+        let infoPanelOld = document.getElementById("info-panel");
+        if (infoPanelOld !== null) {
+          infoPanelOld.parentNode.removeChild(infoPanelOld);
+        }
+        let infoPanel = createInfoPanel(courseInfoList);
+        localStorage.setItem('infoPanelInnerHtml', infoPanel.innerHTML);
+        document.getElementById("logout-panel").insertBefore(infoPanel, document.getElementById("username-online").nextSibling);
+      }
+    }
+  }
+  xhr.open('GET', 'http://learn.tsinghua.edu.cn/MultiLanguage/lesson/student/MyCourse.jsp', true);
+  xhr.send();
+};
+
+login = function(username, password, popup=false) {
+  if (popup) {
+    toggleSpin(true);
+    // preload old course info for online user
+    if (localStorage.getItem('username') === username) {
+      document.getElementById('login-panel').style.display = "none";
+      document.getElementById('logout-panel').style.display = "block";
+      document.getElementById('username-online').innerText = localStorage.getItem('username');
+      let infoPanelOld = document.getElementById("info-panel");
+      if (infoPanelOld === null && localStorage.getItem('infoPanelInnerHtml') !== null) {
+        let infoPanelOld = document.createElement("div");
+        infoPanelOld.id = "info-panel";
+        infoPanelOld.classList.add("box");
+        infoPanelOld.innerHTML = localStorage.getItem('infoPanelInnerHtml');
+        document.getElementById("logout-panel").insertBefore(infoPanelOld, document.getElementById("username-online").nextSibling);
+      }
+    }
+  }
+  // get new course info
+  let xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      // login failure
+      if (xhr.responseText.indexOf('alert') > -1) {
+        toggleSpin(false);
+        window.alert('用户名或密码错误');
+        logout(popup);
+        return;
+      }
+      // login success
+      setBadge(online=true);
+      localStorage.setItem('username', username);
+      localStorage.setItem('password', password);
+      getCourseInfo(popup);
+    }
+  }
+  xhr.open('POST', 'https://learn.tsinghua.edu.cn/MultiLanguage/lesson/teacher/loginteacher.jsp', true);
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhr.send("userid=" + encodeURIComponent(username) + "&userpass=" + encodeURIComponent(password) + "&submit1=%E7%99%BB%E5%BD%95");
+};
+
+logout = function(popup=false) {
+  localStorage.clear();
+  if (popup) {
+    document.getElementById('username').value = "";
+    document.getElementById('password').value = "";
+    document.getElementById('username-online').innerText = "";
+    document.getElementById('login-panel').style.display = "block";
+    document.getElementById('logout-panel').style.display = "none";
+  }
+  setBadge(online=false);
+};
