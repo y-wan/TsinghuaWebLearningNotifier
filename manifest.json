@@ -1,6 +1,6 @@
 {
   "name": "网络学堂更新推送",
-  "version": "0.1",
+  "version": "0.3",
   "author": "Yingge Wan",
   "icons": {
     "24": "images/favicon.png",
@@ -12,7 +12,7 @@
       "20": "images/favicon.png",
       "40": "images/favicon.png"
     },
-    "default_title": "进入网络学堂",
+    "default_title": "查看网络学堂状态",
     "default_popup": "popup.html"
   },
   "background": {
