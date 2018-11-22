@@ -3,4 +3,4 @@
 
 ## Still WIP
 - 网络学堂：旧版/2015版
-- 浏览器：Microsoft Edge
+- 浏览器：Microsoft Edge/Firefox
