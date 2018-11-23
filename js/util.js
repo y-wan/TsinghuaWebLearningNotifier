@@ -1,3 +1,5 @@
+﻿if (navigator.vendor === "Google Inc.") browser = chrome;
+
 let colorOnline = '#00C853';
 let badgeTextOnline = '√';
 let titleOnline = '在线';
@@ -81,7 +83,7 @@ updateSingleCourse = function(courseName, courseInfo) {
   if (message !== "") {
     browser.notifications.create(getCourseId(courseInfo.courseUrl), {
       type: "basic",
-      iconUrl: "favicon.png",
+      iconUrl: "",
       title: courseName,
       message: message,
       contextMessage: "点击进入课程页面",
